@@ -1,0 +1,1572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Letter Twins — a game for young learners about uppercase and lowercase letters.">
+<style>
+  :root{
+    color-scheme:light dark;
+    padding-top:env(safe-area-inset-top, 0px);
+    padding-bottom:env(safe-area-inset-bottom, 0px);
+  }
+  body{margin:0}
+  img{max-width:100%}
+  [hidden]{display:none !important}
+</style>
+<title>Letter Twins</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Baloo+2:wght@500;700;800&display=swap">
+<style>
+/* ---------- tokens: light (default) ---------- */
+:root{
+  /* NYU violet #57068C carries the identity; everything else is built on it */
+  --ground:#F5F1F9;
+  --ground-2:#E7DCF2;
+  --surface:#FFFFFF;
+  --surface-2:#F9F6FC;
+  --ink:#1E0B2E;
+  --ink-soft:#6B577F;
+  --line:#DCCDEA;
+  --line-strong:#B99AD4;
+
+  --up-bg:#57068C;       /* uppercase: solid NYU violet */
+  --up-line:#3E0566;
+  --up-ink:#FFFFFF;
+  --low-bg:#EFE3FA;      /* lowercase: the same violet, light */
+  --low-line:#8900E1;
+  --low-ink:#2A0B40;
+
+  --sun:#7A1FB8;
+  --sun-soft:#EFE0FA;
+  --good:#1B7A52;
+  --good-soft:#DCF2E8;
+  --nudge:#A8501B;
+  --nudge-soft:#FBE8DB;
+  --focus:#170421;
+
+  --font-letter:"Andika","Comic Sans MS","Trebuchet MS",system-ui,sans-serif;
+  --font-ui:"Baloo 2","Andika",system-ui,sans-serif;
+  --r-card:22px;
+  --r-pill:999px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#160A22;
+    --ground-2:#211033;
+    --surface:#241237;
+    --surface-2:#2F1847;
+    --ink:#F3EBFA;
+    --ink-soft:#BBA6D1;
+    --line:#3C2456;
+    --line-strong:#5B3A80;
+
+    --up-bg:#8E37D6;
+    --up-line:#B678F0;
+    --up-ink:#FFFFFF;
+    --low-bg:#2E1A47;
+    --low-line:#B678F0;
+    --low-ink:#F3EBFA;
+
+    --sun:#C79BF0;
+    --sun-soft:#3A1F55;
+    --good:#66D9A4;
+    --good-soft:#123C2C;
+    --nudge:#FFB07A;
+    --nudge-soft:#3E2415;
+    --focus:#FFFFFF;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#160A22;
+  --ground-2:#211033;
+  --surface:#241237;
+  --surface-2:#2F1847;
+  --ink:#F3EBFA;
+  --ink-soft:#BBA6D1;
+  --line:#3C2456;
+  --line-strong:#5B3A80;
+
+  --up-bg:#8E37D6;
+  --up-line:#B678F0;
+  --up-ink:#FFFFFF;
+  --low-bg:#2E1A47;
+  --low-line:#B678F0;
+  --low-ink:#F3EBFA;
+
+  --sun:#C79BF0;
+  --sun-soft:#3A1F55;
+  --good:#66D9A4;
+  --good-soft:#123C2C;
+  --nudge:#FFB07A;
+  --nudge-soft:#3E2415;
+  --focus:#FFFFFF;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background:var(--ground);
+  color:var(--ink);
+  font-family:var(--font-ui);
+  font-size:17px;
+  line-height:1.45;
+  -webkit-text-size-adjust:100%;
+}
+.app{
+  min-height:100%;
+  display:flex;
+  flex-direction:column;
+  padding-inline:16px;
+  padding-block:0 28px;
+  max-width:860px;
+  margin:0 auto;
+}
+button{font-family:inherit}
+:focus-visible{
+  outline:4px solid var(--focus);
+  outline-offset:3px;
+  border-radius:8px;
+}
+
+/* ---------- top bar ---------- */
+.bar{
+  position:sticky;
+  top:env(safe-area-inset-top, 0px);
+  z-index:20;
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:10px 14px;
+  padding-block:12px;
+  background:var(--ground);
+  border-bottom:2px solid var(--line);
+  margin-bottom:18px;
+}
+.bar .chip{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  background:var(--surface);
+  border:2px solid var(--line);
+  border-radius:var(--r-pill);
+  padding:6px 14px;
+  font-weight:700;
+  font-size:15px;
+  white-space:nowrap;
+}
+.bar .score-num{font-variant-numeric:tabular-nums}
+.stars{display:inline-flex;gap:4px;align-items:center}
+.stars svg{width:20px;height:20px;display:block}
+.star-off{fill:none;stroke:var(--line-strong);stroke-width:2}
+.star-on{fill:var(--sun);stroke:var(--sun);stroke-width:2}
+.bar .spacer{flex:1 1 auto}
+.iconbtn{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  background:var(--surface);
+  color:var(--ink);
+  border:2px solid var(--line);
+  border-radius:var(--r-pill);
+  padding:6px 14px;
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+  min-height:40px;
+}
+.iconbtn:hover{border-color:var(--line-strong)}
+.iconbtn svg{width:18px;height:18px}
+.iconbtn.exit{
+  background:var(--ink);
+  color:var(--surface);
+  border-color:var(--ink);
+  font-weight:800;
+}
+.iconbtn.exit:hover{border-color:var(--ink);opacity:.9}
+.iconbtn .slash{opacity:0}
+.iconbtn.off{border-style:dashed;color:var(--ink-soft)}
+.iconbtn.off .slash{opacity:1}
+@media (max-width:620px){
+  .bar{gap:8px;padding-block:10px}
+  .bar .chip{padding:5px 11px;font-size:14px}
+  .iconbtn{padding:6px 11px}
+  .iconbtn .lbl{
+    position:absolute;width:1px;height:1px;overflow:hidden;
+    clip:rect(0 0 0 0);white-space:nowrap;
+  }
+}
+
+/* ---------- shared blocks ---------- */
+main{flex:1 1 auto;display:flex;flex-direction:column}
+.screen{display:flex;flex-direction:column;flex:1 1 auto}
+.panel{
+  background:var(--surface);
+  border:3px solid var(--line);
+  border-radius:var(--r-card);
+  box-shadow:0 6px 0 var(--line);
+  padding:26px 22px;
+}
+h1{
+  font-family:var(--font-ui);
+  font-weight:800;
+  font-size:clamp(38px,9vw,60px);
+  line-height:1.05;
+  margin:0;
+  text-wrap:balance;
+  letter-spacing:-0.5px;
+}
+h2{
+  font-weight:800;
+  font-size:clamp(23px,5vw,30px);
+  margin:0;
+  text-wrap:balance;
+}
+.lede{font-size:clamp(17px,3.4vw,21px);color:var(--ink-soft);margin:0;text-wrap:balance}
+.eyebrow{
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--ink-soft);
+  margin:0;
+}
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  font-family:var(--font-ui);
+  font-weight:800;
+  font-size:19px;
+  padding:14px 26px;
+  min-height:56px;
+  border-radius:var(--r-pill);
+  border:3px solid var(--ink);
+  background:var(--ink);
+  color:var(--surface);
+  box-shadow:0 5px 0 var(--line-strong);
+  cursor:pointer;
+}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 var(--line-strong)}
+.btn.ghost{
+  background:var(--surface);
+  color:var(--ink);
+  border-color:var(--line-strong);
+  box-shadow:0 5px 0 var(--line);
+}
+.btn svg{width:22px;height:22px}
+.row{display:flex;flex-wrap:wrap;gap:12px}
+
+/* ---------- welcome ---------- */
+.welcome{
+  flex:1 1 auto;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  gap:22px;
+  text-align:center;
+  padding-block:24px 8px;
+}
+.buddies{width:min(300px,78vw);height:auto;display:block}
+.buddy-pop{transform-origin:center;animation:pop .6s cubic-bezier(.2,1.4,.4,1) both}
+.buddy-pop.b2{animation-delay:.14s}
+@keyframes pop{from{transform:scale(.4) rotate(-8deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+/* pick-a-game menu */
+.games{
+  display:grid;
+  gap:14px;
+  grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+  width:100%;
+  max-width:740px;
+}
+.game{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:8px;
+  text-align:left;
+  background:var(--surface);
+  color:var(--ink);
+  border:3px solid var(--line);
+  border-radius:var(--r-card);
+  box-shadow:0 6px 0 var(--line);
+  padding:18px 18px 16px;
+  cursor:pointer;
+  transition:transform .12s ease;
+}
+.game:hover{transform:translateY(-3px);border-color:var(--line-strong)}
+.game:active{transform:translateY(2px);box-shadow:0 3px 0 var(--line)}
+.game .glyphs{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  font-family:var(--font-letter);
+  font-weight:700;
+  font-size:34px;
+  line-height:1;
+  margin-bottom:2px;
+  padding-right:40px;   /* keeps the tiles clear of the done badge */
+}
+.game .glyphs span{
+  display:grid;
+  place-items:center;
+  min-width:44px;
+  padding:5px 8px;
+  border-radius:12px;
+}
+.game .glyphs .u{background:var(--up-bg);border:3px solid var(--up-line);color:var(--up-ink)}
+.game .glyphs .l{background:var(--low-bg);border:3px solid var(--low-line);color:var(--low-ink)}
+.game .glyphs .hidden-card{background:var(--ground-2);border:3px solid var(--line-strong);color:var(--ink-soft)}
+.game .glyphs .arrow{font-family:var(--font-ui);font-size:22px;color:var(--ink-soft);min-width:0;padding:0}
+.game .gname{font-weight:800;font-size:19px;line-height:1.2}
+.game .gdesc{font-weight:500;font-size:15px;color:var(--ink-soft);line-height:1.35}
+.game .gdone{
+  position:absolute;
+  top:12px;right:12px;
+  display:none;
+  place-items:center;
+  width:32px;height:32px;
+  background:var(--sun-soft);
+  border:2px solid var(--sun);
+  border-radius:50%;
+}
+.game .gdone svg{width:17px;height:17px}
+.game.done .gdone{display:grid}
+.game.done{border-color:var(--sun)}
+.menu-note{font-size:15px;color:var(--ink-soft);margin:0;text-wrap:balance}
+
+/* ---------- play stage ---------- */
+.stage{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:20px;
+  flex:1 1 auto;
+  padding-block:4px 30px;
+}
+.prompt{
+  text-align:center;
+  font-size:clamp(17px,3.6vw,21px);
+  font-weight:700;
+  margin:0;
+  text-wrap:balance;
+}
+.prompt .q{color:var(--ink-soft);font-weight:500;display:block;font-size:15px;margin-top:4px}
+
+/* big letter tiles */
+.letter{
+  font-family:var(--font-letter);
+  font-weight:700;
+  line-height:1;
+  color:var(--ink);
+}
+.hero-letter{
+  display:grid;
+  place-items:center;
+  width:clamp(120px,32vw,168px);
+  height:clamp(120px,32vw,168px);
+  margin:0 auto;
+  border-radius:28px;
+  background:var(--up-bg);
+  color:var(--up-ink);
+  border:4px solid var(--up-line);
+  box-shadow:0 7px 0 var(--line);
+  font-size:clamp(72px,19vw,104px);
+  position:relative;
+  margin-bottom:12px;
+}
+.kind-tag{
+  position:absolute;
+  bottom:-14px;left:50%;
+  transform:translateX(-50%);
+  font-family:var(--font-ui);
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  background:var(--surface);
+  border:2px solid var(--line);
+  border-radius:var(--r-pill);
+  padding:2px 12px;
+  color:var(--ink-soft);
+  white-space:nowrap;
+}
+
+.options{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:clamp(10px,3vw,20px);
+}
+.opt{
+  font-family:var(--font-letter);
+  font-weight:700;
+  font-size:clamp(46px,12vw,64px);
+  width:clamp(84px,22vw,116px);
+  height:clamp(96px,24vw,126px);
+  display:grid;
+  place-items:center;
+  border-radius:22px;
+  background:var(--low-bg);
+  color:var(--low-ink);
+  border:4px solid var(--low-line);
+  box-shadow:0 6px 0 var(--line);
+  cursor:pointer;
+  position:relative;
+  transition:transform .12s ease;
+}
+.opt:hover{transform:translateY(-3px)}
+.opt:active{transform:translateY(2px)}
+.opt[disabled]{cursor:default;opacity:.55}
+.opt.wrong{animation:wobble .45s ease}
+.opt.hint{
+  outline:4px dashed var(--nudge);
+  outline-offset:5px;
+  animation:breathe 1.4s ease-in-out infinite;
+}
+.opt.hint::after{
+  content:"look here";
+  position:absolute;
+  bottom:-13px;left:50%;transform:translateX(-50%);
+  font-family:var(--font-ui);
+  font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
+  background:var(--nudge);color:var(--surface);
+  border-radius:var(--r-pill);padding:2px 10px;white-space:nowrap;
+}
+@keyframes wobble{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+@keyframes breathe{0%,100%{outline-offset:5px}50%{outline-offset:9px}}
+
+/* twin reveal */
+.twinbox{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:clamp(6px,2vw,14px);
+  flex-wrap:nowrap;
+}
+.twinbox .tile{
+  width:clamp(84px,21vw,112px);
+  height:clamp(84px,21vw,112px);
+  display:grid;place-items:center;
+  border-radius:22px;
+  font-family:var(--font-letter);
+  font-weight:700;
+  font-size:clamp(50px,13vw,66px);
+  box-shadow:0 6px 0 var(--line);
+  animation:pop .45s cubic-bezier(.2,1.4,.4,1) both;
+}
+.twinbox .tile.up{background:var(--up-bg);border:4px solid var(--up-line);color:var(--up-ink)}
+.twinbox .tile.low{background:var(--low-bg);border:4px solid var(--low-line);color:var(--low-ink);animation-delay:.1s}
+.twinbox .knot{
+  flex:0 0 auto;
+  width:clamp(34px,9vw,52px);
+  color:var(--ink);
+  animation:pop .4s .2s cubic-bezier(.2,1.4,.4,1) both;
+}
+.twinbox .knot svg{width:100%;height:auto;display:block}
+
+/* ---------- memory board ---------- */
+.board{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:clamp(8px,2.4vw,14px);
+  max-width:520px;
+  width:100%;
+  margin:0 auto;
+}
+.memcard{
+  aspect-ratio:3/4;
+  position:relative;
+  border:0;
+  background:none;
+  padding:0;
+  cursor:pointer;
+  perspective:800px;
+  min-width:0;
+}
+.memcard .inner{
+  position:absolute;
+  inset:0;
+  transition:transform .4s ease;
+  transform-style:preserve-3d;
+}
+.memcard.up .inner{transform:rotateY(180deg)}
+.memcard .face{
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  border-radius:18px;
+  backface-visibility:hidden;
+  box-shadow:0 5px 0 var(--line);
+}
+.memcard .back{
+  background:var(--ground-2);
+  border:3px solid var(--line-strong);
+  color:var(--ink-soft);
+}
+.memcard .back svg{width:46%;height:auto;opacity:.75}
+.memcard .front{
+  transform:rotateY(180deg);
+  font-family:var(--font-letter);
+  font-weight:700;
+  font-size:clamp(30px,8vw,46px);
+  color:var(--ink);
+}
+.memcard .front.up{background:var(--up-bg);border:3px solid var(--up-line);color:var(--up-ink)}
+.memcard .front.low{background:var(--low-bg);border:3px solid var(--low-line);color:var(--low-ink)}
+.memcard.matched{cursor:default}
+.memcard.matched .inner{animation:pop .4s cubic-bezier(.2,1.4,.4,1)}
+.memcard.matched .front{box-shadow:0 0 0 4px var(--good), 0 5px 0 var(--line)}
+.memcard .tick{
+  position:absolute;
+  top:5px;right:5px;
+  width:22px;height:22px;
+  border-radius:50%;
+  background:var(--good);
+  color:var(--surface);
+  display:none;
+  place-items:center;
+}
+.memcard.matched .tick{display:grid}
+.memcard .tick svg{width:14px;height:14px}
+.memcard[disabled]{cursor:default}
+.boardnote{text-align:center;font-size:15px;color:var(--ink-soft);margin:0}
+
+/* ---------- sentence level ---------- */
+.sentence{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:0 clamp(10px,2.6vw,18px);
+  font-family:var(--font-letter);
+  font-size:clamp(30px,7.6vw,48px);
+  line-height:1.5;
+  padding:6px 0;
+}
+.word{display:inline-flex}
+.ltr{
+  font:inherit;
+  color:var(--ink);
+  background:var(--surface-2);
+  border:0;
+  border-bottom:4px solid var(--line);
+  border-radius:8px 8px 4px 4px;
+  padding:2px 3px;
+  margin:0 1px;
+  cursor:pointer;
+  min-width:.62em;
+  transition:transform .12s ease;
+}
+.ltr:hover{background:var(--ground-2)}
+.ltr.fixed-ch{background:none;border-bottom-color:transparent;cursor:default;padding:2px 1px}
+.ltr.done{
+  background:var(--up-bg);
+  color:var(--up-ink);
+  border-bottom:4px solid var(--up-line);
+  cursor:default;
+  animation:grow .45s cubic-bezier(.2,1.4,.4,1);
+}
+@keyframes grow{from{transform:scale(.55) translateY(6px)}to{transform:scale(1) translateY(0)}}
+.ltr.stay{animation:nudge .4s ease}
+@keyframes nudge{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
+.punct{font-family:var(--font-letter);padding:2px 1px}
+.keyhint{
+  text-align:center;
+  font-size:14px;
+  color:var(--ink-soft);
+  margin:0;
+}
+kbd{
+  font-family:var(--font-ui);
+  font-size:13px;
+  font-weight:700;
+  background:var(--surface);
+  border:2px solid var(--line);
+  border-bottom-width:3px;
+  border-radius:7px;
+  padding:1px 7px;
+}
+
+/* ---------- feedback ledge ---------- */
+.ledge{
+  min-height:82px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  border-radius:var(--r-card);
+  border:3px dashed var(--line);
+  padding:14px 18px;
+  text-align:left;
+  font-size:clamp(16px,3.4vw,19px);
+  font-weight:700;
+  color:var(--ink-soft);
+  background:var(--surface-2);
+}
+.ledge.good{background:var(--good-soft);border:3px solid var(--good);color:var(--ink)}
+.ledge.nudge{background:var(--nudge-soft);border:3px solid var(--nudge);color:var(--ink)}
+.ledge .badge{
+  flex:0 0 auto;
+  width:40px;height:40px;
+  border-radius:50%;
+  display:grid;place-items:center;
+  color:var(--surface);
+}
+.ledge.good .badge{background:var(--good)}
+.ledge.nudge .badge{background:var(--nudge)}
+.ledge .badge svg{width:24px;height:24px}
+.ledge .txt{margin:0}
+.ledge .why{display:block;font-weight:500;font-size:15px;color:var(--ink-soft);margin-top:2px}
+
+.actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;min-height:56px}
+
+/* ---------- interstitial / final ---------- */
+.center-screen{
+  flex:1 1 auto;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  gap:20px;
+  text-align:center;
+  padding-block:18px;
+}
+.bigstars{display:flex;gap:10px;justify-content:center}
+.bigstars svg{width:clamp(44px,11vw,60px);height:auto}
+.bigstars .s{animation:pop .5s cubic-bezier(.2,1.4,.4,1) both}
+.bigstars .s:nth-child(2){animation-delay:.12s}
+.bigstars .s:nth-child(3){animation-delay:.24s}
+.tally{
+  display:flex;gap:12px;flex-wrap:wrap;justify-content:center;
+}
+.tally .cell{
+  background:var(--surface);
+  border:3px solid var(--line);
+  border-radius:18px;
+  box-shadow:0 5px 0 var(--line);
+  padding:14px 22px;
+  min-width:130px;
+}
+.tally .k{display:block;font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft)}
+.tally .v{display:block;font-size:34px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1}
+.pickrow{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.pick{
+  background:var(--surface);
+  border:3px solid var(--line-strong);
+  border-radius:16px;
+  box-shadow:0 4px 0 var(--line);
+  padding:12px 18px;
+  font-weight:700;
+  font-size:16px;
+  color:var(--ink);
+  cursor:pointer;
+  min-height:52px;
+}
+.pick:hover{background:var(--surface-2)}
+.sr{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;
+}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;
+  }
+  .memcard .inner{transition:none}
+}
+</style>
+
+</head>
+<body>
+<div class="app">
+  <!-- ===== progress bar ===== -->
+  <header class="bar" id="bar" hidden>
+    <button class="iconbtn exit" id="quitBtn" type="button" aria-label="Leave this game and choose another">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6"/><path d="M11 6l-6 6 6 6"/></svg>
+      Leave game
+    </button>
+    <span class="chip" id="levelChip">Find Your Twin</span>
+    <span class="chip">
+      <span class="stars" id="starStrip" role="img" aria-label="0 of 3 stars"></span>
+      <span class="sr" id="starText">0 of 3 stars</span>
+    </span>
+    <span class="chip">Score: <span class="score-num" id="scoreNum">0</span></span>
+    <span class="spacer"></span>
+    <button class="iconbtn" id="musicBtn" type="button" aria-pressed="true" aria-label="Music on">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 17V5l11-2v12"/><circle cx="6.5" cy="17.5" r="2.8"/><circle cx="17.5" cy="15.5" r="2.8"/><path class="slash" d="M3 21L21 3"/></svg>
+      <span class="lbl" id="musicLabel">Music on</span>
+    </button>
+    <button class="iconbtn" id="soundBtn" type="button" aria-pressed="true" aria-label="Sound on">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9a4 4 0 0 1 0 6"/><path class="slash" d="M3 21L21 3"/></svg>
+      <span class="lbl" id="soundLabel">Sound on</span>
+    </button>
+  </header>
+
+  <main>
+    <!-- ===== welcome ===== -->
+    <section class="screen welcome" id="screenWelcome">
+      <svg class="buddies" viewBox="0 0 300 176" role="img" aria-label="Two friendly letter cards, big A and little a, smiling side by side">
+        <g class="buddy-pop">
+          <rect x="16" y="12" width="116" height="152" rx="28" fill="var(--up-bg)" stroke="var(--up-line)" stroke-width="5"/>
+          <circle cx="54" cy="52" r="6.5" fill="var(--ink)"/>
+          <circle cx="94" cy="52" r="6.5" fill="var(--ink)"/>
+          <path d="M58 68 q16 13 32 0" fill="none" stroke="var(--ink)" stroke-width="4.5" stroke-linecap="round"/>
+          <text x="74" y="150" text-anchor="middle" font-family="Andika, sans-serif" font-size="74" font-weight="700" fill="var(--ink)">A</text>
+        </g>
+        <g class="buddy-pop b2">
+          <rect x="168" y="12" width="116" height="152" rx="28" fill="var(--low-bg)" stroke="var(--low-line)" stroke-width="5"/>
+          <circle cx="206" cy="52" r="6.5" fill="var(--ink)"/>
+          <circle cx="246" cy="52" r="6.5" fill="var(--ink)"/>
+          <path d="M210 68 q16 13 32 0" fill="none" stroke="var(--ink)" stroke-width="4.5" stroke-linecap="round"/>
+          <text x="226" y="150" text-anchor="middle" font-family="Andika, sans-serif" font-size="74" font-weight="700" fill="var(--ink)">a</text>
+        </g>
+        <path d="M134 88 h32" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 12"/>
+      </svg>
+
+      <h1>Letter Twins</h1>
+      <p class="lede">Every letter has a twin. Can you find them?</p>
+
+      <p class="menu-note">Pick any game you like. You can play them in any order, and play them again as often as you want.</p>
+
+      <div class="games" id="gameMenu">
+        <button class="game" type="button" data-lvl="1">
+          <span class="gdone"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="star-on" stroke-linejoin="round" d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg><span class="sr">done</span></span>
+          <span class="glyphs" aria-hidden="true"><span class="u">B</span><span class="l">b</span></span>
+          <span class="gname">Find Your Twin</span>
+          <span class="gdesc">Match a big letter with its little twin.</span>
+        </button>
+        <button class="game" type="button" data-lvl="2">
+          <span class="gdone"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="star-on" stroke-linejoin="round" d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg><span class="sr">done</span></span>
+          <span class="glyphs" aria-hidden="true"><span class="hidden-card">?</span><span class="u">A</span><span class="l">a</span></span>
+          <span class="gname">Twin Match</span>
+          <span class="gdesc">Flip the cards and find the pairs.</span>
+        </button>
+        <button class="game" type="button" data-lvl="3">
+          <span class="gdone"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="star-on" stroke-linejoin="round" d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg><span class="sr">done</span></span>
+          <span class="glyphs" aria-hidden="true"><span class="l">s</span><span class="arrow">→</span><span class="u">S</span></span>
+          <span class="gname">Capital Challenge</span>
+          <span class="gdesc">Make the right letters big in a sentence.</span>
+        </button>
+      </div>
+
+      <p class="keyhint">You can play with a mouse, a finger, or the keyboard. Take all the time you need.<br>Quiet sea music plays while you play — turn it off any time with the <strong>Music</strong> button.</p>
+    </section>
+
+    <!-- ===== level 1 ===== -->
+    <section class="screen" id="screenL1" hidden>
+      <div class="stage">
+        <p class="prompt" id="l1Prompt">Find the little twin of this letter.<span class="q" id="l1Count">Round 1 of 8</span></p>
+        <div id="l1Hero"></div>
+        <div class="options" id="l1Options"></div>
+        <div class="ledge" id="l1Ledge"><p class="txt">Tap the little letter that is the same letter.</p></div>
+        <div class="actions" id="l1Actions"></div>
+      </div>
+    </section>
+
+    <!-- ===== level 2 ===== -->
+    <section class="screen" id="screenL2" hidden>
+      <div class="stage">
+        <p class="prompt" id="l2Prompt">Flip two cards. Find a big letter and its little twin.<span class="q" id="l2Count">Board 1 of 2 · 4 pairs</span></p>
+        <div class="board" id="l2Board"></div>
+        <p class="boardnote" id="l2Note">Pairs found: 0 of 4</p>
+        <div class="ledge" id="l2Ledge"><p class="txt">A and a are twins. A and B are not.</p></div>
+        <div class="actions" id="l2Actions"></div>
+      </div>
+    </section>
+
+    <!-- ===== level 3 ===== -->
+    <section class="screen" id="screenL3" hidden>
+      <div class="stage">
+        <p class="prompt" id="l3Prompt">Click the letters that should be BIG.<span class="q" id="l3Count">Sentence 1 of 6</span></p>
+        <div class="sentence" id="l3Sentence"></div>
+        <p class="keyhint">Keyboard: <kbd>Tab</kbd> to the sentence, <kbd>←</kbd> <kbd>→</kbd> to move, <kbd>Enter</kbd> to change a letter.</p>
+        <div class="ledge" id="l3Ledge"><p class="txt">Which letter starts the sentence? Which one is a name?</p></div>
+        <div class="actions" id="l3Actions"></div>
+      </div>
+    </section>
+
+    <!-- ===== level complete ===== -->
+    <section class="screen center-screen" id="screenLevelUp" hidden>
+      <div class="bigstars" id="luStars"></div>
+      <h2 id="luTitle">Game complete!</h2>
+      <p class="lede" id="luText"></p>
+      <div class="actions" id="luActions"></div>
+    </section>
+
+    <!-- ===== final ===== -->
+    <section class="screen center-screen" id="screenFinal" hidden>
+      <div class="bigstars" id="finalStars"></div>
+      <h1>You found all the Letter Twins!</h1>
+      <p class="lede">Big letters and little letters — you know they are the same letters now.</p>
+      <div class="tally">
+        <div class="cell"><span class="k">Stars</span><span class="v" id="finalStarNum">3 / 3</span></div>
+        <div class="cell"><span class="k">Score</span><span class="v" id="finalScore">0</span></div>
+      </div>
+      <div class="row" style="justify-content:center">
+        <button class="btn" id="chooseBtn" type="button">Choose a game</button>
+      </div>
+    </section>
+  </main>
+
+  <div class="sr" id="live" role="status" aria-live="polite"></div>
+</div>
+
+<script>
+/* =======================================================================
+   CONTENT — edit these arrays to change the game.
+   ======================================================================= */
+
+// Level 1: one uppercase letter, three lowercase choices (first one is the twin).
+const L1_ROUNDS = [
+  { upper:"A", twin:"a", others:["e","s"] },
+  { upper:"B", twin:"b", others:["d","p"] },
+  { upper:"D", twin:"d", others:["b","q"] },
+  { upper:"F", twin:"f", others:["t","r"] },
+  { upper:"M", twin:"m", others:["n","w"] },
+  { upper:"R", twin:"r", others:["n","k"] },
+  { upper:"T", twin:"t", others:["f","j"] },
+  { upper:"G", twin:"g", others:["q","y"] }
+];
+
+// Level 2: memory boards, easiest first.
+const L2_BOARDS = [
+  ["A","B","D","M"],
+  ["A","B","D","F","R","T"]
+];
+
+// Level 3: sentences. Write the "before" and the "after" — the game works out
+// which letters need to change. "notes" explains each change, in the order the
+// changes appear in the sentence. "why" is the little lesson after the sentence.
+//
+// The six capital-letter rules covered here:
+//   1. the first word of a sentence      4. days of the week
+//   2. the word I                        5. months of the year
+//   3. people's names                    6. places and languages
+// Everything else — dog, cat, pizza, apples — stays little.
+const L3_SENTENCES = [
+  { before:"the cat is sleeping.", after:"The cat is sleeping.",
+    notes:["It is the first word of the sentence."],
+    why:"We use a capital letter at the beginning of a sentence." },
+
+  { before:"i like pizza.", after:"I like pizza.",
+    notes:["The word I is always big."],
+    why:"The word I is always a capital letter. But pizza stays little — it is not a name." },
+
+  { before:"my name is sara.", after:"My name is Sara.",
+    notes:["It is the first word of the sentence.","Sara is a person's name."],
+    why:"A capital letter starts the sentence, and people's names begin with a capital letter." },
+
+  { before:"we play on monday.", after:"We play on Monday.",
+    notes:["It is the first word of the sentence.","Monday is a day of the week."],
+    why:"Days of the week — Monday, Friday, Sunday — always begin with a capital letter." },
+
+  { before:"my birthday is in july.", after:"My birthday is in July.",
+    notes:["It is the first word of the sentence.","July is a month."],
+    why:"Months — January, July, December — always begin with a capital letter." },
+
+  { before:"she lives in london.", after:"She lives in London.",
+    notes:["It is the first word of the sentence.","London is a city."],
+    why:"Cities and countries begin with a capital letter." },
+
+  { before:"i speak arabic.", after:"I speak Arabic.",
+    notes:["The word I is always big.","Arabic is a language."],
+    why:"Languages — Arabic, English, Chinese — begin with a capital letter." },
+
+  { before:"ben is from egypt.", after:"Ben is from Egypt.",
+    notes:["Ben is a person's name, and it starts the sentence.","Egypt is a country."],
+    why:"People's names and countries both begin with a capital letter." }
+];
+
+// Praise lines.
+const PRAISE_TWIN = [
+  "You found the twin!",
+  "Perfect match!",
+  "Yes! {U} and {l} are the same letter.",
+  "{U} and {l} are twins!"
+];
+const PRAISE_MATCH = ["Twin match!","You found a pair!","{U} and {l} — twins!"];
+const NUDGE_TWIN = [
+  "Almost! Try another twin.",
+  "Good try! Look again.",
+  "Look again. Who is {U}'s twin?"
+];
+const POINTS = 10;
+
+/* =======================================================================
+   ENGINE
+   ======================================================================= */
+const $ = (id) => document.getElementById(id);
+const pickOne = (arr) => arr[Math.floor(Math.random() * arr.length)];
+const shuffle = (arr) => {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+};
+const fill = (s, U, l) => s.replace(/\{U\}/g, U).replace(/\{l\}/g, l);
+
+/* Games can be played in any order, any number of times.
+   state.done remembers which ones have been finished at least once —
+   that is what the stars count. */
+const state = { score:0, stars:0, level:1, done:{1:false,2:false,3:false}, sound:true, music:true };
+
+/* =======================================================================
+   AUDIO — all made in the browser, no files to load.
+   Two separate switches: "sound" = feedback tones, "music" = background loop.
+   Nothing important is ever told by sound alone.
+   ======================================================================= */
+let actx = null;
+function ensureCtx() {
+  if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+  if (actx.state === "suspended") actx.resume();
+  return actx;
+}
+
+/* ---- feedback tones ---- */
+function tone(freq, when, dur, gain) {
+  if (!state.sound) return;
+  try {
+    const ctx = ensureCtx();
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = "sine";
+    o.frequency.value = freq;
+    const t = ctx.currentTime + when;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(gain, t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g).connect(ctx.destination);
+    o.start(t); o.stop(t + dur + 0.05);
+  } catch (e) { /* sound is optional */ }
+}
+const sndGood  = () => { duck(); tone(660, 0, .18, .18); tone(880, .12, .22, .16); };
+const sndNudge = () => { duck(); tone(300, 0, .16, .12); };
+const sndStar  = () => { duck(); tone(660,0,.16,.16); tone(880,.13,.16,.15); tone(1175,.26,.32,.14); };
+
+/* ---- background music: the sea ----
+   Sea sound only: no notes, no chords, nothing with a pitch. Brown noise
+   (the deep, warm kind) shaped into slow swells, two layers at different
+   speeds so the waves never line up and never sound like a loop. Each swell
+   opens the filter a little, the way a wave brightens as it rolls in and
+   darkens as it pulls back.
+   MUSIC_VOL sets the level; MUSIC_WAVES sets the two wave layers.         */
+const MUSIC_VOL = 0.10;      // master level
+const MUSIC_WAVES = [
+  // speed = swells per second (0.050 ≈ one wave every 20 seconds)
+  { speed:0.050, low:320, sweep:400, pan:-0.35, mix:0.62 },  // near wave
+  { speed:0.036, low:220, sweep:280, pan: 0.35, mix:0.44 }   // far wave
+];
+
+let musicGain = null, musicParts = [], musicOn = false, noiseBuf = null;
+
+function musicBus() {
+  if (musicGain) return musicGain;
+  const ctx = ensureCtx();
+  musicGain = ctx.createGain();
+  musicGain.gain.value = 0.0001;
+  musicGain.connect(ctx.destination);
+  return musicGain;
+}
+
+/* brown noise, with the end cross-faded into the start so the loop is seamless */
+function makeNoise(ctx, seconds) {
+  if (noiseBuf) return noiseBuf;
+  const rate = ctx.sampleRate;
+  const len = Math.floor(rate * seconds);
+  const fade = Math.floor(rate * 0.5);
+  const raw = new Float32Array(len + fade);
+  let last = 0;
+  for (let i = 0; i < raw.length; i++) {
+    const white = Math.random() * 2 - 1;
+    last = (last + 0.022 * white) / 1.022;   // integrate: brown, not white
+    raw[i] = last * 3.2;
+  }
+  noiseBuf = ctx.createBuffer(1, len, rate);
+  const out = noiseBuf.getChannelData(0);
+  for (let i = 0; i < len; i++) out[i] = raw[i];
+  for (let i = 0; i < fade; i++) {
+    const t = i / fade;
+    out[i] = raw[i] * t + raw[len + i] * (1 - t);
+  }
+  return noiseBuf;
+}
+
+function startMusic() {
+  if (!state.music || musicOn) return;
+  try {
+    const ctx = ensureCtx();
+    musicBus();
+    musicOn = true;
+    const buf = makeNoise(ctx, 8);
+
+    MUSIC_WAVES.forEach((w) => {
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      src.loop = true;
+      src.playbackRate.value = 0.85 + Math.random() * 0.3;  // the two layers differ
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = "lowpass";
+      filter.frequency.value = w.low;
+      filter.Q.value = 0.4;
+
+      const swell = ctx.createGain();
+      swell.gain.value = w.mix * 0.5;       // middle of the swell
+
+      // one slow LFO per layer drives both the volume and the brightness
+      const lfo = ctx.createOscillator();
+      lfo.frequency.value = w.speed;
+      const toSwell = ctx.createGain();
+      toSwell.gain.value = w.mix * 0.48;    // rides from near-silent to full
+      const toFilter = ctx.createGain();
+      toFilter.gain.value = w.sweep;
+      lfo.connect(toSwell).connect(swell.gain);
+      lfo.connect(toFilter).connect(filter.frequency);
+      lfo.start(ctx.currentTime + Math.random() * 6);   // start the waves apart
+
+      let tail = swell;
+      if (ctx.createStereoPanner) {                     // a little width
+        const pan = ctx.createStereoPanner();
+        pan.pan.value = w.pan;
+        swell.connect(pan);
+        tail = pan;
+        musicParts.push(pan);
+      }
+      src.connect(filter).connect(swell);
+      tail.connect(musicGain);
+      src.start();
+      musicParts.push(src, filter, swell, lfo, toSwell, toFilter);
+    });
+
+    musicGain.gain.cancelScheduledValues(ctx.currentTime);
+    musicGain.gain.setTargetAtTime(MUSIC_VOL, ctx.currentTime, 2.0); // roll in slowly
+  } catch (e) { /* sound is optional */ }
+}
+function stopMusic() {
+  if (!musicOn) return;
+  musicOn = false;
+  try {
+    const ctx = actx;
+    musicGain.gain.cancelScheduledValues(ctx.currentTime);
+    musicGain.gain.setTargetAtTime(0.0001, ctx.currentTime, 0.5);   // fade out
+    const parts = musicParts;
+    musicParts = [];
+    setTimeout(() => {
+      parts.forEach((n) => { try { if (n.stop) n.stop(); n.disconnect(); } catch (e) {} });
+    }, 2200);
+  } catch (e) { /* ignore */ }
+}
+/* dip the drone for a moment so feedback is easy to hear */
+function duck() {
+  if (!musicOn || !musicGain || !actx) return;
+  try {
+    const t = actx.currentTime;
+    musicGain.gain.cancelScheduledValues(t);
+    musicGain.gain.setTargetAtTime(MUSIC_VOL * 0.3, t, 0.08);
+    musicGain.gain.setTargetAtTime(MUSIC_VOL, t + 0.6, 0.5);
+  } catch (e) { /* ignore */ }
+}
+/* stop playing to an empty room */
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) stopMusic();
+  else if (state.music && $("screenWelcome").hidden) startMusic();
+});
+
+/* ---- icons ---- */
+const ICON_TICK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5.2 5.2L20 7"/></svg>';
+const ICON_RETRY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/></svg>';
+const ICON_KNOT = '<svg viewBox="0 0 60 40" fill="none" aria-hidden="true"><circle cx="20" cy="20" r="12" stroke="currentColor" stroke-width="5"/><circle cx="40" cy="20" r="12" stroke="currentColor" stroke-width="5"/></svg>';
+const ICON_BACKFACE = '<svg viewBox="0 0 60 40" fill="none" aria-hidden="true"><circle cx="20" cy="20" r="12" stroke="currentColor" stroke-width="5"/><circle cx="40" cy="20" r="12" stroke="currentColor" stroke-width="5"/></svg>';
+const starSVG = (on) => '<svg viewBox="0 0 24 24" aria-hidden="true"><path class="' + (on ? "star-on" : "star-off") +
+  '" stroke-linejoin="round" d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>';
+
+/* ---- screens ---- */
+const SCREENS = ["screenWelcome","screenL1","screenL2","screenL3","screenLevelUp","screenFinal"];
+function show(id) {
+  SCREENS.forEach((s) => { $(s).hidden = (s !== id); });
+  $("bar").hidden = (id === "screenWelcome");
+  if (id === "screenWelcome") stopMusic(); else startMusic();
+  window.scrollTo({ top: 0, behavior: "instant" in window ? "instant" : "auto" });
+}
+function say(msg) { $("live").textContent = msg; }
+
+function paintBar() {
+  $("levelChip").textContent = LEVEL_NAMES[state.level];
+  $("scoreNum").textContent = state.score;
+  let strip = "";
+  for (let i = 1; i <= 3; i++) strip += starSVG(i <= state.stars);
+  $("starStrip").innerHTML = strip;
+  $("starStrip").setAttribute("aria-label", state.stars + " of 3 stars");
+  $("starText").textContent = state.stars + " of 3 stars";
+}
+function addPoints(n) { state.score += n; paintBar(); }
+
+function ledge(el, kind, text, why) {
+  el.className = "ledge" + (kind ? " " + kind : "");
+  const badge = kind === "good" ? ICON_TICK : kind === "nudge" ? ICON_RETRY : "";
+  el.innerHTML =
+    (badge ? '<span class="badge">' + badge + "</span>" : "") +
+    '<p class="txt">' + text + (why ? '<span class="why">' + why + "</span>" : "") + "</p>";
+  say(text + (why ? " " + why : ""));
+}
+function actions(el, list) {
+  el.innerHTML = "";
+  list.forEach((b) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "btn" + (b.ghost ? " ghost" : "");
+    btn.textContent = b.label;
+    btn.addEventListener("click", b.onClick);
+    el.appendChild(btn);
+    if (b.focus) setTimeout(() => btn.focus(), 30);
+  });
+}
+
+/* =======================================================================
+   LEVEL 1 — Find Your Twin
+   ======================================================================= */
+const l1 = { i:0, tries:0, rounds:[] };
+
+function startL1() {
+  state.level = 1;
+  l1.rounds = L1_ROUNDS.slice();
+  l1.i = 0;
+  paintBar();
+  show("screenL1");
+  renderL1();
+}
+
+function renderL1() {
+  const r = l1.rounds[l1.i];
+  l1.tries = 0;
+  $("l1Count").textContent = "Round " + (l1.i + 1) + " of " + l1.rounds.length;
+  $("l1Prompt").firstChild.textContent = "Find the little twin of this letter.";
+
+  $("l1Hero").innerHTML =
+    '<div class="hero-letter letter">' + r.upper +
+    '<span class="kind-tag">big letter</span></div>';
+
+  const opts = shuffle([r.twin].concat(r.others));
+  const box = $("l1Options");
+  box.innerHTML = "";
+  opts.forEach((ch) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "opt";
+    b.textContent = ch;
+    b.setAttribute("aria-label", "little letter " + ch);
+    b.addEventListener("click", () => answerL1(b, ch, r));
+    box.appendChild(b);
+  });
+
+  ledge($("l1Ledge"), "", "Which little letter is the twin of <strong>" + r.upper + "</strong>?");
+  $("l1Actions").innerHTML = "";
+  say("Round " + (l1.i + 1) + ". Find the little twin of big " + r.upper + ".");
+}
+
+function answerL1(btn, ch, r) {
+  if (ch === r.twin) {
+    sndGood();
+    addPoints(POINTS);
+    Array.from($("l1Options").children).forEach((b) => { b.disabled = true; b.classList.remove("hint"); });
+    $("l1Hero").innerHTML =
+      '<div class="twinbox">' +
+        '<div class="tile up letter">' + r.upper + "</div>" +
+        '<span class="knot">' + ICON_KNOT + "</span>" +
+        '<div class="tile low letter">' + r.twin + "</div>" +
+      "</div>";
+    $("l1Options").innerHTML = "";
+    ledge($("l1Ledge"), "good", fill(pickOne(PRAISE_TWIN), r.upper, r.twin),
+      r.upper + " and " + r.twin + " are the same letter. One is big, one is little.");
+    const last = l1.i === l1.rounds.length - 1;
+    actions($("l1Actions"), [{
+      label: last ? "Finish this game" : "Next letter",
+      focus: true,
+      onClick: () => { if (last) finishLevel(1); else { l1.i++; renderL1(); } }
+    }]);
+  } else {
+    sndNudge();
+    l1.tries++;
+    btn.classList.remove("wrong");
+    void btn.offsetWidth;
+    btn.classList.add("wrong");
+    const msg = fill(pickOne(NUDGE_TWIN), r.upper, r.twin);
+    ledge($("l1Ledge"), "nudge", msg, "Nothing is lost — try as many times as you like.");
+    if (l1.tries >= 2) {
+      Array.from($("l1Options").children).forEach((b) => {
+        if (b.textContent === r.twin) b.classList.add("hint");
+      });
+    }
+  }
+}
+
+/* =======================================================================
+   LEVEL 2 — Twin Match
+   ======================================================================= */
+const l2 = { board:0, cards:[], first:null, busy:false, found:0 };
+
+function startL2() {
+  state.level = 2;
+  l2.board = 0;
+  paintBar();
+  show("screenL2");
+  renderBoard();
+}
+
+function renderBoard() {
+  const letters = L2_BOARDS[l2.board];
+  l2.found = 0;
+  l2.first = null;
+  l2.busy = false;
+  l2.cards = shuffle(
+    letters.flatMap((L) => [
+      { letter:L, glyph:L, kind:"up" },
+      { letter:L, glyph:L.toLowerCase(), kind:"low" }
+    ])
+  );
+
+  $("l2Count").textContent = "Board " + (l2.board + 1) + " of " + L2_BOARDS.length +
+    " · " + letters.length + " pairs";
+  $("l2Note").textContent = "Pairs found: 0 of " + letters.length;
+
+  const board = $("l2Board");
+  board.innerHTML = "";
+  l2.cards.forEach((c, idx) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "memcard";
+    b.dataset.idx = idx;
+    b.setAttribute("aria-label", "Face down card " + (idx + 1));
+    b.innerHTML =
+      '<span class="inner">' +
+        '<span class="face back">' + ICON_BACKFACE + "</span>" +
+        '<span class="face front ' + c.kind + ' letter">' + c.glyph + "</span>" +
+      "</span>" +
+      '<span class="tick">' + ICON_TICK + "</span>";
+    b.addEventListener("click", () => flip(b, c));
+    board.appendChild(b);
+  });
+
+  ledge($("l2Ledge"), "", "Flip two cards. A big letter and its little twin make a pair.");
+  $("l2Actions").innerHTML = "";
+  say("Board " + (l2.board + 1) + ". " + letters.length + " pairs to find.");
+}
+
+function flip(btn, card) {
+  if (l2.busy || btn.classList.contains("matched") || btn.classList.contains("up")) return;
+  btn.classList.add("up");
+  btn.setAttribute("aria-label", (card.kind === "up" ? "big" : "little") + " letter " + card.glyph);
+
+  if (!l2.first) { l2.first = { btn, card }; return; }
+
+  const a = l2.first, b = { btn, card };
+  l2.first = null;
+
+  if (a.card.letter === b.card.letter && a.card.kind !== b.card.kind) {
+    sndGood();
+    addPoints(POINTS);
+    l2.found++;
+    [a, b].forEach((x) => {
+      x.btn.classList.add("matched");
+      x.btn.disabled = true;
+    });
+    const U = a.card.letter, low = U.toLowerCase();
+    ledge($("l2Ledge"), "good", fill(pickOne(PRAISE_MATCH), U, low),
+      "Twins stay together on the board.");
+    const total = L2_BOARDS[l2.board].length;
+    $("l2Note").textContent = "Pairs found: " + l2.found + " of " + total;
+    if (l2.found === total) setTimeout(boardDone, 600);
+  } else {
+    sndNudge();
+    l2.busy = true;
+    ledge($("l2Ledge"), "nudge", "Not twins this time. Good try!",
+      a.card.glyph + " and " + b.card.glyph + " are different letters. The cards go back — try two more.");
+    setTimeout(() => {
+      [a, b].forEach((x) => {
+        x.btn.classList.remove("up");
+        x.btn.setAttribute("aria-label", "Face down card " + (Number(x.btn.dataset.idx) + 1));
+      });
+      l2.busy = false;
+    }, 1200);
+  }
+}
+
+function boardDone() {
+  const last = l2.board === L2_BOARDS.length - 1;
+  if (last) { finishLevel(2); return; }
+  sndStar();
+  ledge($("l2Ledge"), "good", "Every pair found!", "Ready for a bigger board? This one has 6 pairs.");
+  actions($("l2Actions"), [{
+    label: "Bigger board",
+    focus: true,
+    onClick: () => { l2.board++; renderBoard(); }
+  }]);
+}
+
+/* =======================================================================
+   LEVEL 3 — Capital Letter Challenge
+   ======================================================================= */
+const l3 = { i:0, targets:[], done:0, letters:[] };
+
+// work out which positions must change by comparing before and after
+function capsFor(s) {
+  const need = [];
+  for (let i = 0; i < s.before.length; i++) {
+    if (s.before[i] !== s.after[i]) need.push(i);
+  }
+  return need;
+}
+
+function startL3() {
+  state.level = 3;
+  l3.i = 0;
+  paintBar();
+  show("screenL3");
+  renderSentence();
+}
+
+function renderSentence() {
+  const s = L3_SENTENCES[l3.i];
+  l3.targets = capsFor(s);
+  l3.done = 0;
+  l3.letters = [];
+
+  $("l3Count").textContent = "Sentence " + (l3.i + 1) + " of " + L3_SENTENCES.length +
+    " · " + l3.targets.length + (l3.targets.length === 1 ? " letter to change" : " letters to change");
+
+  const wrap = $("l3Sentence");
+  wrap.innerHTML = "";
+  const words = [];
+  let cur = { start:0, chars:[] };
+  for (let i = 0; i < s.before.length; i++) {
+    const ch = s.before[i];
+    if (ch === " ") { words.push(cur); cur = { start:i + 1, chars:[] }; }
+    else cur.chars.push({ ch, i });
+  }
+  words.push(cur);
+
+  words.forEach((w) => {
+    const span = document.createElement("span");
+    span.className = "word";
+    w.chars.forEach((c) => {
+      if (/[a-z]/i.test(c.ch)) {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "ltr";
+        b.textContent = c.ch;
+        b.dataset.pos = c.i;
+        b.tabIndex = -1;
+        b.setAttribute("aria-label", "letter " + c.ch + ", make it big");
+        b.addEventListener("click", () => tapLetter(b, c.i, s));
+        l3.letters.push(b);
+        span.appendChild(b);
+      } else {
+        const p = document.createElement("span");
+        p.className = "punct";
+        p.textContent = c.ch;
+        span.appendChild(p);
+      }
+    });
+    wrap.appendChild(span);
+  });
+
+  if (l3.letters.length) l3.letters[0].tabIndex = 0;
+  wrap.addEventListener("keydown", arrowMove);
+
+  ledge($("l3Ledge"), "", "Click a letter to make it big. Capitals go on the first word, the word I, and names of people, days, months and places.");
+  $("l3Actions").innerHTML = "";
+  say("Sentence " + (l3.i + 1) + ": " + s.before);
+}
+
+function arrowMove(e) {
+  if (!["ArrowLeft","ArrowRight","Home","End"].includes(e.key)) return;
+  const live = l3.letters.filter((b) => !b.disabled);
+  const idx = live.indexOf(document.activeElement);
+  if (idx === -1) return;
+  e.preventDefault();
+  let next = idx;
+  if (e.key === "ArrowRight") next = Math.min(idx + 1, live.length - 1);
+  if (e.key === "ArrowLeft") next = Math.max(idx - 1, 0);
+  if (e.key === "Home") next = 0;
+  if (e.key === "End") next = live.length - 1;
+  l3.letters.forEach((b) => (b.tabIndex = -1));
+  live[next].tabIndex = 0;
+  live[next].focus();
+}
+
+function tapLetter(btn, pos, s) {
+  if (btn.classList.contains("done")) return;
+  if (l3.targets.includes(pos)) {
+    sndGood();
+    addPoints(POINTS);
+    btn.textContent = s.after[pos];
+    btn.classList.add("done");
+    btn.disabled = true;
+    btn.setAttribute("aria-label", "letter " + s.after[pos] + ", now a capital letter");
+    l3.done++;
+    const note = (s.notes || [])[l3.targets.indexOf(pos)] || "That letter needed a capital.";
+    ledge($("l3Ledge"), "good", "Yes! " + s.before[pos] + " became " + s.after[pos] + ".", note);
+    if (l3.done === l3.targets.length) setTimeout(sentenceDone, 350);
+  } else {
+    sndNudge();
+    btn.classList.remove("stay");
+    void btn.offsetWidth;
+    btn.classList.add("stay");
+    ledge($("l3Ledge"), "nudge", "This letter can stay little.",
+      "Look for the first word, the word I, a person's name, a day, a month, or a place. Words like dog, cat and pizza stay little.");
+  }
+}
+
+function sentenceDone() {
+  const s = L3_SENTENCES[l3.i];
+  const last = l3.i === L3_SENTENCES.length - 1;
+  sndStar();
+  ledge($("l3Ledge"), "good", "Great job! " + s.after, s.why);
+  actions($("l3Actions"), [{
+    label: last ? "Finish this game" : "Next sentence",
+    focus: true,
+    onClick: () => { if (last) finishLevel(3); else { l3.i++; renderSentence(); } }
+  }]);
+}
+
+/* =======================================================================
+   LEVEL COMPLETE / FINAL
+   ======================================================================= */
+const LEVEL_NAMES = { 1:"Find Your Twin", 2:"Twin Match", 3:"Capital Challenge" };
+const LEVEL_LINE = {
+  1:"You know that big letters and little letters can be the same letter.",
+  2:"You found every pair of twins on the board.",
+  3:"You know when a letter needs to be big."
+};
+
+const STARTERS = { 1:startL1, 2:startL2, 3:startL3 };
+
+function countStars() {
+  state.stars = [1,2,3].filter((k) => state.done[k]).length;
+}
+
+function finishLevel(n) {
+  sndStar();
+  const firstTime = !state.done[n];
+  state.done[n] = true;
+  countStars();
+  paintBar();
+  paintMenu();
+
+  let strip = "";
+  for (let i = 1; i <= 3; i++) strip += '<span class="s">' + starSVG(i <= state.stars) + "</span>";
+  $("luStars").innerHTML = strip;
+  $("luTitle").textContent = firstTime
+    ? LEVEL_NAMES[n] + " — done!"
+    : LEVEL_NAMES[n] + " — played again!";
+  $("luText").textContent = LEVEL_LINE[n] +
+    (firstTime ? " You earned a star." : " Your star is safe.");
+
+  // what to offer next: nothing is forced, everything is offered
+  const left = [1,2,3].filter((k) => !state.done[k]);
+  const buttons = [];
+  if (left.length) {
+    buttons.push({ label:"Play " + LEVEL_NAMES[left[0]], focus:true, onClick:() => STARTERS[left[0]]() });
+    buttons.push({ label:"Play this again", ghost:true, onClick:() => STARTERS[n]() });
+    buttons.push({ label:"All games", ghost:true, onClick:goMenu });
+  } else {
+    buttons.push({ label:"See my stars", focus:true, onClick:showFinal });
+    buttons.push({ label:"Play this again", ghost:true, onClick:() => STARTERS[n]() });
+    buttons.push({ label:"All games", ghost:true, onClick:goMenu });
+  }
+  actions($("luActions"), buttons);
+
+  show("screenLevelUp");
+  say(LEVEL_NAMES[n] + " complete. You have " + state.stars + " of 3 stars.");
+}
+
+function paintMenu() {
+  Array.from($("gameMenu").children).forEach((card) => {
+    const n = Number(card.dataset.lvl);
+    card.classList.toggle("done", !!state.done[n]);
+    card.setAttribute("aria-label",
+      card.querySelector(".gname").textContent +
+      (state.done[n] ? " — done, play it again" : ""));
+  });
+}
+
+function goMenu() {
+  paintMenu();
+  show("screenWelcome");
+  setTimeout(() => $("gameMenu").querySelector("button").focus(), 60);
+}
+
+function showFinal() {
+  paintBar();
+  let strip = "";
+  for (let i = 1; i <= 3; i++) strip += '<span class="s">' + starSVG(i <= state.stars) + "</span>";
+  $("finalStars").innerHTML = strip;
+  $("finalStarNum").textContent = state.stars + " / 3";
+  $("finalScore").textContent = state.score;
+  show("screenFinal");
+  say("You found all the Letter Twins. " + state.stars + " stars and " + state.score + " points.");
+  setTimeout(() => $("chooseBtn").focus(), 60);
+}
+
+/* =======================================================================
+   WIRING
+   ======================================================================= */
+/* every game card starts its own game — any order, any number of times */
+Array.from($("gameMenu").children).forEach((card) => {
+  card.addEventListener("click", () => STARTERS[Number(card.dataset.lvl)]());
+});
+$("quitBtn").addEventListener("click", goMenu);
+$("chooseBtn").addEventListener("click", goMenu);
+$("soundBtn").addEventListener("click", () => {
+  state.sound = !state.sound;
+  $("soundBtn").setAttribute("aria-pressed", String(state.sound));
+  $("soundBtn").setAttribute("aria-label", state.sound ? "Sound on" : "Sound off");
+  $("soundBtn").classList.toggle("off", !state.sound);
+  $("soundLabel").textContent = state.sound ? "Sound on" : "Sound off";
+  say(state.sound ? "Sound on" : "Sound off");
+  if (state.sound) sndGood();
+});
+$("musicBtn").addEventListener("click", () => {
+  state.music = !state.music;
+  $("musicBtn").setAttribute("aria-pressed", String(state.music));
+  $("musicBtn").setAttribute("aria-label", state.music ? "Music on" : "Music off");
+  $("musicBtn").classList.toggle("off", !state.music);
+  $("musicLabel").textContent = state.music ? "Music on" : "Music off";
+  say(state.music ? "Music on" : "Music off");
+  if (state.music) startMusic(); else stopMusic();
+});
+
+/* keep a game in progress across a republish */
+function boot(saved) {
+  if (saved && typeof saved.score === "number") {
+    state.score = saved.score;
+    state.done = saved.done || state.done;
+    countStars();
+    if (saved.music === false) $("musicBtn").click();
+    if (saved.sound === false) $("soundBtn").click();
+  }
+  paintBar();
+  paintMenu();
+  show("screenWelcome");
+}
+try {
+  window.claude?.hot?.snapshot(() => ({
+    score: state.score, done: state.done, sound: state.sound, music: state.music
+  }));
+} catch (e) { /* not running inside the artifact host */ }
+if (window.claude?.hot?.ready) window.claude.hot.ready(boot);
+else boot(window.claude?.hot?.data ?? {});
+</script>
+
+</body>
+</html>
